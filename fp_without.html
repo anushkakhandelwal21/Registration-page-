@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forgot Password</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+background:#f2f4f8;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.container{
+background:white;
+padding:30px;
+width:320px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+input{
+width:100%;
+padding:10px;
+margin:8px 0;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+button{
+width:100%;
+padding:10px;
+margin-top:10px;
+background:#4CAF50;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Forgot Password</h2>
+
+<input id="email" placeholder="Enter Email">
+
+<button onclick="sendOTP()">Send OTP</button>
+<p id="otpMessage" style="color:green; font-size:14px;"></p>
+<input id="otp" placeholder="Enter OTP">
+<p id="check" style="color:green; font-size:14px;"></p>
+<button onclick="verifyOTP()">Login</button>
+
+</div>
+
+<script>
+
+let userEmail=""
+
+function sendOTP(){
+
+userEmail=document.getElementById("email").value
+
+fetch("/send_otp",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email:userEmail})
+})
+.then(res=>res.json())
+.then(data=>{
+if (data.status=="otp_sent"){
+document.getElementById("otpMessage").innerText="OTP sent to your email"
+}
+else if (data.status=="Email_not_found"){
+document.getElementById("otpMessage").innerText="Email Not Found\nPlease Register First"   
+}
+else{
+document.getElementById("otpMessage").innerText="Failed to send OTP"
+}
+})
+}
+
+function verifyOTP(){
+
+let otp=document.getElementById("otp").value
+
+fetch("/verify_otp",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({otp:otp})
+})
+.then(res=>res.json())
+.then(data=>{
+
+if(data.status==="login_success"){
+window.location.href="/dashboard"
+}
+else if(data.status==="otp_expired"){
+document.gelElementByID("check").innerText="OTP Expired,Get a new OTP"
+}
+else{
+document.gelElementByID("check").innerText="Invalid OTP"
+}
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
